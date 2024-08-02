@@ -49,5 +49,5 @@ java {
 }
 
 jar {
-    from("LICENSE")
+    from("LICENSE.md")
 }
