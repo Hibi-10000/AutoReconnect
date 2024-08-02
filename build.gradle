@@ -1,22 +1,15 @@
 plugins {
-    id 'fabric-loom' version '1.3-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
 }
 
-// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-var java_version = 17
-
 version = project.mod_version
-archivesBaseName = project.mod_id
+group = project.mod_id
+base.archivesName = project.mod_id
 
 repositories {
     mavenCentral()
-
-    maven { url "https://maven.shedaniel.me/" }
-
-    maven {
-        name = 'TerraformersMC'
-        url = 'https://maven.terraformersmc.com/'
-    }
+    maven { url = "https://maven.shedaniel.me/" }
+    maven { url = "https://maven.terraformersmc.com/" }
 }
 
 dependencies {
@@ -32,45 +25,25 @@ dependencies {
 }
 
 processResources {
-    inputs.property "id", project.mod_id
-    inputs.property "name", project.mod_name
     inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "java_version", java_version
-    inputs.property "fabric_loader_version", project.loader_version
-    inputs.property "modmenu_version", project.modmenu_version
-    inputs.property "clothconfig_version", project.clothconfig_version
 
     filesMatching("fabric.mod.json") {
-        expand([
-            "id": project.mod_id,
-            "name": project.mod_name,
-            "version": project.version,
-            "minecraft_version": project.minecraft_version,
-            "java_version": java_version,
-            "fabric_loader_version": project.loader_version,
-            "modmenu_version": project.modmenu_version,
-            "clothconfig_version": project.clothconfig_version
-        ])
+        expand "version": project.version
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release.set(java_version)
+    it.options.encoding = "UTF-8"
+
+    // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
+    options.release.set(17)
 }
 
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
-
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
-    }
+    from("LICENSE")
 }

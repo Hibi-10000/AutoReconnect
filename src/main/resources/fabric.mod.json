@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "${id}",
+  "id": "autoreconnect",
   "version": "${version}",
-  "name": "${name}",
+  "name": "AutoReconnect",
   "description": "This mod will automatically try to reconnect you back to a server if you got disconnected.\\nBy default, it will make 4 attempts after 3, 10, 30 and 60 seconds.",
   "authors": [
     "Bstn1802"
@@ -27,13 +27,13 @@
     "autoreconnect.mixins.json"
   ],
   "depends": {
-    "java": ">=${java_version}",
+    "java": ">=17",
     "fabric": "*",
-    "fabricloader": ">=${fabric_loader_version}",
-    "minecraft": ">=${minecraft_version}",
-    "cloth-config2": ">=${clothconfig_version}"
+    "fabricloader": ">=0.14.21",
+    "minecraft": ">=1.20.1",
+    "cloth-config2": ">=11.0.99"
   },
   "suggests": {
-    "modmenu": ">=${modmenu_version}"
+    "modmenu": ">=7.0.1"
   }
 }
