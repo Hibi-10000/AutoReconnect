@@ -2,7 +2,6 @@ package autoreconnect.reconnect;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.MessageScreen;
-import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.text.Text;
 
 public class SingleplayerReconnectStrategy extends ReconnectStrategy {
@@ -25,6 +24,6 @@ public class SingleplayerReconnectStrategy extends ReconnectStrategy {
         MinecraftClient client = MinecraftClient.getInstance();
         if (!client.getLevelStorage().levelExists(getName())) return;
         client.setScreenAndRender(new MessageScreen(Text.translatable("selectWorld.data_read")));
-        client.createIntegratedServerLoader().start(new TitleScreen(), getName());
+        client.createIntegratedServerLoader().start(getName(), () -> {});
     }
 }
