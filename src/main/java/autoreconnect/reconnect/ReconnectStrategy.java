@@ -4,7 +4,7 @@ public abstract class ReconnectStrategy {
     private int attempt = -1;
 
     // package-private constructor
-    ReconnectStrategy() { }
+    ReconnectStrategy() {}
 
     public abstract void reconnect();
 
