@@ -5,19 +5,24 @@ import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(DisconnectedScreen.class)
+@Mixin(value = DisconnectedScreen.class, priority = 800)
 public class DisconnectedScreenMixin extends Screen {
     @Shadow
     @Final
     @Mutable
     private Screen parent;
+    @Shadow
+    @Final
+    private Text reason;
 
     protected DisconnectedScreenMixin(Text title) {
         super(title);
@@ -28,6 +33,16 @@ public class DisconnectedScreenMixin extends Screen {
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // make back button redirect to SelectWorldScreen instead of MultiPlayerScreen (https://bugs.mojang.com/browse/MC-45602)
             this.parent = new SelectWorldScreen(new TitleScreen());
+        }
+    }
+
+    @Inject(at = @At("TAIL"), method = "init", cancellable = true)
+    private void initTail(CallbackInfo ci) {
+        if (reason instanceof MutableText text
+            && text.getContent() instanceof TranslatableTextContent translatable
+            && translatable.getKey().equals("disconnect.transfer")
+        ) {
+            ci.cancel();
         }
     }
 
