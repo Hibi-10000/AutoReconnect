@@ -1,7 +1,6 @@
 package autoreconnect.mixin;
 
 import autoreconnect.DisconnectedScreenUtil;
-import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.realms.gui.screen.DisconnectedRealmsScreen;
 import net.minecraft.text.Text;
@@ -11,12 +10,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin({ DisconnectedScreen.class, DisconnectedRealmsScreen.class })
-public class DisconnectedScreensMixin extends Screen {
+@Mixin(DisconnectedRealmsScreen.class)
+public class DisconnectedRealmsScreenMixin extends Screen {
     @Unique
     private final DisconnectedScreenUtil util = new DisconnectedScreenUtil(this);
 
-    protected DisconnectedScreensMixin(Text title) {
+    protected DisconnectedRealmsScreenMixin(Text title) {
         super(title);
     }
 

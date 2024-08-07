@@ -7,7 +7,7 @@
         "ClientPlayNetworkHandlerMixin",
         "ConnectScreenMixin",
         "DisconnectedScreenMixin",
-        "DisconnectedScreensMixin",
+        "DisconnectedRealmsScreenMixin",
         "MinecraftClientMixin",
         "RealmsConnectionMixin",
         "ScreenAccessor"

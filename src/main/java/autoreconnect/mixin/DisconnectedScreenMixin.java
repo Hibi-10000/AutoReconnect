@@ -1,6 +1,7 @@
 package autoreconnect.mixin;
 
 import autoreconnect.AutoReconnect;
+import autoreconnect.DisconnectedScreenUtil;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -14,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = DisconnectedScreen.class, priority = 800)
+@Mixin(DisconnectedScreen.class)
 public class DisconnectedScreenMixin extends Screen {
     @Shadow
     @Final
@@ -23,6 +24,8 @@ public class DisconnectedScreenMixin extends Screen {
     @Shadow
     @Final
     private Text reason;
+    @Unique
+    private final DisconnectedScreenUtil util = new DisconnectedScreenUtil(this);
 
     protected DisconnectedScreenMixin(Text title) {
         super(title);
@@ -36,22 +39,29 @@ public class DisconnectedScreenMixin extends Screen {
         }
     }
 
-    @Inject(at = @At("TAIL"), method = "init", cancellable = true)
-    private void initTail(CallbackInfo ci) {
+    @Inject(at = @At("TAIL"), method = "init")
+    private void init(CallbackInfo ci) {
         if (reason instanceof MutableText text
             && text.getContent() instanceof TranslatableTextContent translatable
-            && translatable.getKey().equals("disconnect.transfer")
+            && (translatable.getKey().equals("disconnect.transfer")
+            || translatable.getKey().equals("multiplayer.disconnect.kicked"))
         ) {
-            ci.cancel();
+            return;
         }
+        util.init();
     }
 
     @Inject(at = @At("RETURN"), method = "init")
-    private void init(CallbackInfo info) {
+    private void initReturn(CallbackInfo info) {
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // change back button text to "Back" instead of "Back to World List" bcs of bug fix above
             AutoReconnect.findBackButton(this).ifPresent(btn -> btn.setMessage(Text.translatable("gui.toWorld")));
         }
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return util.keyPressed(keyCode, scanCode, modifiers);
     }
 
     // make this screen closable by pressing escape
