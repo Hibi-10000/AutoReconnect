@@ -10,12 +10,12 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(Screen.class)
 public interface ScreenAccessor {
     @Invoker("keyPressed")
-    boolean keyPressed(int keyCode, int scanCode, int modifiers);
+    boolean invokeKeyPressed(int keyCode, int scanCode, int modifiers);
 
     @SuppressWarnings("UnusedReturnValue")
     @Invoker("addDrawableChild")
-    <T extends Element & Drawable & Selectable> T addDrawableChild(T drawableElement);
+    <T extends Element & Drawable & Selectable> T invokeAddDrawableChild(T drawableElement);
 
     @Invoker("remove")
-    void remove(Element child);
+    void invokeRemove(Element child);
 }

@@ -62,11 +62,11 @@ public class DisconnectedScreenUtil {
                 backButton.getHeight()
             ).build();
 
-            ((ScreenAccessor) screen).addDrawableChild(cancelButton);
+            ((ScreenAccessor) screen).invokeAddDrawableChild(cancelButton);
         } else {
             reconnectButton.setWidth(backButton.getWidth());
         }
-        ((ScreenAccessor) screen).addDrawableChild(reconnectButton);
+        ((ScreenAccessor) screen).invokeAddDrawableChild(reconnectButton);
         backButton.setY(backButton.getY() + backButton.getHeight() + 4);
 
         if (shouldAutoReconnect) {
@@ -82,7 +82,7 @@ public class DisconnectedScreenUtil {
     private void cancelCountdown() {
         AutoReconnect.getInstance().cancelAutoReconnect();
         shouldAutoReconnect = false;
-        ((ScreenAccessor) screen).remove(cancelButton);
+        ((ScreenAccessor) screen).invokeRemove(cancelButton);
         reconnectButton.active = true; // in case it was deactivated after running out of attempts
         reconnectButton.setMessage(Text.translatable("text.autoreconnect.disconnect.reconnect"));
         reconnectButton.setWidth(backButton.getWidth()); // reset to full width
@@ -112,7 +112,7 @@ public class DisconnectedScreenUtil {
             cancelCountdown();
             return true;
         } else {
-            return ((ScreenAccessor) screen).keyPressed(keyCode, scanCode, modifiers);
+            return ((ScreenAccessor) screen).invokeKeyPressed(keyCode, scanCode, modifiers);
         }
     }
 }
