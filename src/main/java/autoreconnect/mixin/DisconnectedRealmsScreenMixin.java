@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(DisconnectedRealmsScreen.class)
 public class DisconnectedRealmsScreenMixin extends Screen {
     @Unique
-    private final DisconnectedScreenUtil util = new DisconnectedScreenUtil(this);
+    private final DisconnectedScreenUtil util = new DisconnectedScreenUtil(this, null);
 
     protected DisconnectedRealmsScreenMixin(Text title) {
         super(title);

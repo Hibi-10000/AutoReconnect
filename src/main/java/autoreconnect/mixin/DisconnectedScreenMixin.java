@@ -6,9 +6,7 @@ import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,11 +19,9 @@ public class DisconnectedScreenMixin extends Screen {
     @Final
     @Mutable
     private Screen parent;
-    @Shadow
-    @Final
-    private Text reason;
     @Unique
-    private final DisconnectedScreenUtil util = new DisconnectedScreenUtil(this);
+    @Mutable
+    private @Final DisconnectedScreenUtil util;
 
     protected DisconnectedScreenMixin(Text title) {
         super(title);
@@ -33,6 +29,7 @@ public class DisconnectedScreenMixin extends Screen {
 
     @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;)V")
     private void constructor(Screen parent, Text title, Text reason, Text buttonLabel, CallbackInfo info) {
+        util = new DisconnectedScreenUtil(this, reason);
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // make back button redirect to SelectWorldScreen instead of MultiPlayerScreen (https://bugs.mojang.com/browse/MC-45602)
             this.parent = new SelectWorldScreen(new TitleScreen());
@@ -41,13 +38,6 @@ public class DisconnectedScreenMixin extends Screen {
 
     @Inject(at = @At("TAIL"), method = "init")
     private void init(CallbackInfo ci) {
-        if (reason instanceof MutableText text
-            && text.getContent() instanceof TranslatableTextContent translatable
-            && (translatable.getKey().equals("disconnect.transfer")
-            || translatable.getKey().equals("multiplayer.disconnect.kicked"))
-        ) {
-            return;
-        }
         util.init();
     }
 

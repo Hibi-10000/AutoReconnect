@@ -4,7 +4,9 @@ import autoreconnect.mixin.ScreenAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 
 import java.util.NoSuchElementException;
@@ -12,8 +14,10 @@ import java.util.concurrent.TimeUnit;
 
 public class DisconnectedScreenUtil {
     private final Screen screen;
-    public DisconnectedScreenUtil(Screen screen) {
+    private final Text reason;
+    public DisconnectedScreenUtil(Screen screen, Text reason) {
         this.screen = screen;
+        this.reason = reason;
     }
 
     private ButtonWidget reconnectButton, cancelButton, backButton;
@@ -23,7 +27,14 @@ public class DisconnectedScreenUtil {
         backButton = AutoReconnect.findBackButton(screen)
             .orElseThrow(() -> new NoSuchElementException("Couldn't find the back button on the disconnect screen"));
 
-        shouldAutoReconnect = AutoReconnect.getConfig().hasAttempts();
+        if (reason instanceof MutableText text
+            && text.getContent() instanceof TranslatableTextContent translatable
+            && translatable.getKey().equals("disconnect.transfer")
+        ) {
+            shouldAutoReconnect = false;
+        } else {
+            shouldAutoReconnect = AutoReconnect.getConfig().hasAttempts();
+        }
 
         reconnectButton = ButtonWidget.builder(
                 Text.translatable("text.autoreconnect.disconnect.reconnect"),
