@@ -20,7 +20,7 @@ public class DisconnectedRealmsScreenMixin extends Screen {
     }
 
     @Inject(method = "init", at = @At("TAIL"))
-    private void init(CallbackInfo info) {
+    private void init(CallbackInfo ci) {
         util.init();
     }
 

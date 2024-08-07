@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayNetworkHandler.class)
 public class ClientPlayNetworkHandlerMixin {
     @Inject(at = @At("TAIL"), method = "onGameJoin")
-    private void onGameJoin(GameJoinS2CPacket packet, CallbackInfo info) {
+    private void onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
         AutoReconnect.getInstance().onGameJoined();
     }
 }

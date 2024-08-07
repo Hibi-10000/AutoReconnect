@@ -27,7 +27,7 @@ public class MinecraftClientMixin {
 
     @Inject(method = "setScreen", at = @At(value = "FIELD", opcode = PUTFIELD,
         target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;"))
-    private void setScreen(Screen newScreen, CallbackInfo info) {
+    private void setScreen(Screen newScreen, CallbackInfo ci) {
         AutoReconnect.getInstance().onScreenChanged(currentScreen, newScreen);
     }
 }

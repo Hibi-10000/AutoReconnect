@@ -36,8 +36,11 @@ public final class AutoReconnectConfig {
     public static void load() {
         try {
             instance = GSON.fromJson(
-                Files.readString(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME)),
-                AutoReconnectConfig.class);
+                Files.readString(
+                    FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME)
+                ),
+                AutoReconnectConfig.class
+            );
             instance.validate();
         } catch (IOException | JsonSyntaxException ex) {
             LogUtils.getLogger().warn("AutoReconnect could not load the config", ex);
@@ -51,7 +54,7 @@ public final class AutoReconnectConfig {
         else if (!delays.isEmpty()) delays = delays.stream().filter(i -> i > 0).toList();
         if (autoMessages == null) autoMessages = defaultAutoMessages;
         else if (!autoMessages.isEmpty()) for (AutoMessages autoMessage : autoMessages) {
-            if (autoMessage.name == null) autoMessage.name = AutoMessages.defaultName;
+            if (autoMessage.name     == null) autoMessage.name     = AutoMessages.defaultName;
             if (autoMessage.messages == null) autoMessage.messages = AutoMessages.defaultMessages;
             else if (!autoMessage.messages.isEmpty())
                 autoMessage.messages = autoMessage.messages.stream().filter(Objects::nonNull).toList();
@@ -61,7 +64,10 @@ public final class AutoReconnectConfig {
 
     public void save() {
         try {
-            Files.writeString(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME), GSON.toJson(this));
+            Files.writeString(
+                FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME),
+                GSON.toJson(this)
+            );
         } catch (IOException ex) {
             LogUtils.getLogger().error("AutoReconnect could not save the config", ex);
         }
@@ -69,7 +75,7 @@ public final class AutoReconnectConfig {
 
     public int getDelayForAttempt(int attempt) {
         if (attempt < delays.size()) return delays.get(attempt);
-        if (infinite) return delays.get(delays.size() - 1); // repeat last
+        if (infinite) return delays.getLast(); // repeat last
         return -1; // no more attempts configured
     }
 
@@ -78,7 +84,9 @@ public final class AutoReconnectConfig {
     }
 
     public Optional<AutoMessages> getAutoMessagesForName(String name) {
-        return autoMessages.stream().filter(autoMessage -> name.equals(autoMessage.name)).findFirst();
+        return autoMessages.stream().filter(
+            autoMessage -> name.equals(autoMessage.name)
+        ).findFirst();
     }
 
     public static final class AutoMessages {

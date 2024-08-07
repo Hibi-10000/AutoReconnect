@@ -55,8 +55,8 @@ public class AutoReconnect implements ClientModInitializer {
         if (this.reconnectStrategy != null) {
             // should imply that both handlers target the same world/server
             // we return to preserve the attempts counter
-            assert this.reconnectStrategy.getClass().equals(reconnectStrategy.getClass()) &&
-                this.reconnectStrategy.getName().equals(reconnectStrategy.getName());
+            assert this.reconnectStrategy.getClass().equals(reconnectStrategy.getClass())
+                && this.reconnectStrategy.getName().equals(reconnectStrategy.getName());
             return;
         }
         this.reconnectStrategy = reconnectStrategy;
@@ -185,8 +185,10 @@ public class AutoReconnect implements ClientModInitializer {
     }
 
     private static boolean isMainScreen(Screen screen) {
-        return screen instanceof TitleScreen || screen instanceof SelectWorldScreen ||
-            screen instanceof MultiplayerScreen || screen instanceof RealmsMainScreen;
+        return screen instanceof TitleScreen
+            || screen instanceof SelectWorldScreen
+            || screen instanceof MultiplayerScreen
+            || screen instanceof RealmsMainScreen;
     }
 
     private static boolean isReAuthenticating(Screen from, Screen to) {
@@ -203,7 +205,9 @@ public class AutoReconnect implements ClientModInitializer {
                 translatableKey = translatable.getKey();
             } else if (button.getMessage().getContent() instanceof TranslatableTextContent translatable) {
                 translatableKey = translatable.getKey();
-            } else continue;
+            } else {
+                continue;
+            }
 
             // check for gui.back, gui.toMenu, gui.toRealms, gui.toTitle, gui.toWorld (only ones starting with "gui.to")
             if (translatableKey.equals("gui.back") || translatableKey.startsWith("gui.to")) {

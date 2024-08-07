@@ -4,7 +4,6 @@ import autoreconnect.mixin.ScreenAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
@@ -24,11 +23,11 @@ public class DisconnectedScreenUtil {
     private boolean shouldAutoReconnect;
 
     public void init() {
-        backButton = AutoReconnect.findBackButton(screen)
-            .orElseThrow(() -> new NoSuchElementException("Couldn't find the back button on the disconnect screen"));
+        backButton = AutoReconnect.findBackButton(screen).orElseThrow(
+            () -> new NoSuchElementException("Couldn't find the back button on the disconnect screen")
+        );
 
-        if (reason instanceof MutableText text
-            && text.getContent() instanceof TranslatableTextContent translatable
+        if (reason.getContent() instanceof TranslatableTextContent translatable
             && translatable.getKey().equals("disconnect.transfer")
         ) {
             shouldAutoReconnect = false;
@@ -37,9 +36,13 @@ public class DisconnectedScreenUtil {
         }
 
         reconnectButton = ButtonWidget.builder(
-                Text.translatable("text.autoreconnect.disconnect.reconnect"),
-                btn -> AutoReconnect.schedule(() -> MinecraftClient.getInstance().execute(this::manualReconnect), 100, TimeUnit.MILLISECONDS))
-            .dimensions(0, 0, 0, 20).build();
+            Text.translatable("text.autoreconnect.disconnect.reconnect"),
+            btn -> AutoReconnect.schedule(
+                () -> MinecraftClient.getInstance().execute(this::manualReconnect),
+                100,
+                TimeUnit.MILLISECONDS
+            )
+        ).dimensions(0, 0, 0, 20).build();
 
         // put reconnect (and cancel button) where back button is and push that down
         reconnectButton.setX(backButton.getX());
@@ -48,15 +51,16 @@ public class DisconnectedScreenUtil {
             reconnectButton.setWidth(backButton.getWidth() - backButton.getHeight() - 4);
 
             cancelButton = ButtonWidget.builder(
-                    Text.literal("✕")
-                        .styled(s -> s.withColor(Formatting.RED)),
-                    btn -> cancelCountdown())
-                .dimensions(
-                    backButton.getX() + backButton.getWidth() - backButton.getHeight(),
-                    backButton.getY(),
-                    backButton.getHeight(),
-                    backButton.getHeight())
-                .build();
+                Text.literal("✕").styled(
+                    s -> s.withColor(Formatting.RED)
+                ),
+                btn -> cancelCountdown()
+            ).dimensions(
+                backButton.getX() + backButton.getWidth() - backButton.getHeight(),
+                backButton.getY(),
+                backButton.getHeight(),
+                backButton.getHeight()
+            ).build();
 
             ((ScreenAccessor) screen).addDrawableChild(cancelButton);
         } else {
@@ -87,12 +91,18 @@ public class DisconnectedScreenUtil {
     private void countdownCallback(int seconds) {
         if (seconds < 0) {
             // indicates that we're out of attempts
-            reconnectButton.setMessage(Text.translatable("text.autoreconnect.disconnect.reconnect_failed")
-                .styled(s -> s.withColor(Formatting.RED)));
+            reconnectButton.setMessage(
+                Text.translatable("text.autoreconnect.disconnect.reconnect_failed").styled(
+                    s -> s.withColor(Formatting.RED)
+                )
+            );
             reconnectButton.active = false;
         } else {
-            reconnectButton.setMessage(Text.translatable("text.autoreconnect.disconnect.reconnect_in", seconds)
-                .styled(s -> s.withColor(Formatting.GREEN)));
+            reconnectButton.setMessage(
+                Text.translatable("text.autoreconnect.disconnect.reconnect_in", seconds).styled(
+                    s -> s.withColor(Formatting.GREEN)
+                )
+            );
         }
     }
 

@@ -12,6 +12,7 @@ public interface ScreenAccessor {
     @Invoker("keyPressed")
     boolean keyPressed(int keyCode, int scanCode, int modifiers);
 
+    @SuppressWarnings("UnusedReturnValue")
     @Invoker("addDrawableChild")
     <T extends Element & Drawable & Selectable> T addDrawableChild(T drawableElement);
 
