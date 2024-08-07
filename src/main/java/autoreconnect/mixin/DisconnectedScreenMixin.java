@@ -28,7 +28,7 @@ public class DisconnectedScreenMixin extends Screen {
 
     @Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;)V")
     private void constructor(Screen parent, Text title, Text reason, Text buttonLabel, CallbackInfo ci) {
-        util = new DisconnectedScreenUtil(this, reason);
+        util = new DisconnectedScreenUtil(this, reason, this::remove, this::addDrawableChild, super::keyPressed);
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // make back button redirect to SelectWorldScreen instead of MultiPlayerScreen (https://bugs.mojang.com/browse/MC-45602)
             this.parent = new SelectWorldScreen(new TitleScreen());

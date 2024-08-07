@@ -1,6 +1,5 @@
 package autoreconnect;
 
-import autoreconnect.mixin.ScreenAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -10,13 +9,26 @@ import net.minecraft.util.Formatting;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class DisconnectedScreenUtil {
     private final Screen screen;
     private final Text reason;
-    public DisconnectedScreenUtil(Screen screen, Text reason) {
+    private final Consumer<ButtonWidget> removeConsumer, addDrawableChildConsumer;
+    private final IntTernaryPredicate keyPressedPredicate;
+
+    public DisconnectedScreenUtil(
+        Screen screen,
+        Text reason,
+        Consumer<ButtonWidget> removeConsumer,
+        Consumer<ButtonWidget> addDrawableChildConsumer,
+        IntTernaryPredicate keyPressedPredicate
+    ) {
         this.screen = screen;
         this.reason = reason;
+        this.removeConsumer = removeConsumer;
+        this.addDrawableChildConsumer = addDrawableChildConsumer;
+        this.keyPressedPredicate = keyPressedPredicate;
     }
 
     private ButtonWidget reconnectButton, cancelButton, backButton;
@@ -62,11 +74,11 @@ public class DisconnectedScreenUtil {
                 backButton.getHeight()
             ).build();
 
-            ((ScreenAccessor) screen).invokeAddDrawableChild(cancelButton);
+            addDrawableChildConsumer.accept(cancelButton);
         } else {
             reconnectButton.setWidth(backButton.getWidth());
         }
-        ((ScreenAccessor) screen).invokeAddDrawableChild(reconnectButton);
+        addDrawableChildConsumer.accept(reconnectButton);
         backButton.setY(backButton.getY() + backButton.getHeight() + 4);
 
         if (shouldAutoReconnect) {
@@ -82,7 +94,7 @@ public class DisconnectedScreenUtil {
     private void cancelCountdown() {
         AutoReconnect.getInstance().cancelAutoReconnect();
         shouldAutoReconnect = false;
-        ((ScreenAccessor) screen).invokeRemove(cancelButton);
+        removeConsumer.accept(cancelButton);
         reconnectButton.active = true; // in case it was deactivated after running out of attempts
         reconnectButton.setMessage(Text.translatable("text.autoreconnect.disconnect.reconnect"));
         reconnectButton.setWidth(backButton.getWidth()); // reset to full width
@@ -112,7 +124,12 @@ public class DisconnectedScreenUtil {
             cancelCountdown();
             return true;
         } else {
-            return ((ScreenAccessor) screen).invokeKeyPressed(keyCode, scanCode, modifiers);
+            return keyPressedPredicate.test(keyCode, scanCode, modifiers);
         }
+    }
+
+    @FunctionalInterface
+    public interface IntTernaryPredicate {
+        boolean test(int left, int center, int right);
     }
 }
