@@ -9,7 +9,8 @@
         "DisconnectedScreenMixin",
         "DisconnectedScreensMixin",
         "MinecraftClientMixin",
-        "RealmsConnectionMixin"
+        "RealmsConnectionMixin",
+        "ScreenAccessor"
     ],
     "injectors": {
         "defaultRequire": 1
