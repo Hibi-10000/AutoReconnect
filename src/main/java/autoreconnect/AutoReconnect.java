@@ -150,15 +150,16 @@ public class AutoReconnect implements ClientModInitializer {
      * @param delay    Delay in milliseconds before the first and between each following message.
      */
     private void sendAutomatedMessages(ClientPlayerEntity player, Iterator<String> messages, int delay) {
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleWithFixedDelay(() -> {
-            if (!messages.hasNext()) {
-                executorService.shutdown();
-                return;
-            }
+        try (ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor()) {
+            executorService.scheduleWithFixedDelay(() -> {
+                if (!messages.hasNext()) {
+                    executorService.shutdown();
+                    return;
+                }
 
-            sendMessage(player, messages.next());
-        }, delay, delay, TimeUnit.MILLISECONDS);
+                sendMessage(player, messages.next());
+            }, delay, delay, TimeUnit.MILLISECONDS);
+        }
     }
 
     /**
