@@ -20,13 +20,19 @@ public class MinecraftClientMixin {
     @Shadow
     public Screen currentScreen;
 
-    @Inject(method = "startIntegratedServer", at = @At("HEAD"))
+    @Inject(at = @At("HEAD"), method = "startIntegratedServer")
     private void startIntegratedServer(LevelStorage.Session session, ResourcePackManager dataPackManager, SaveLoader saveLoader, boolean newWorld, CallbackInfo ci) {
         AutoReconnect.getInstance().setReconnectHandler(new SingleplayerReconnectStrategy(session.getDirectoryName()));
     }
 
-    @Inject(method = "setScreen", at = @At(value = "FIELD", opcode = PUTFIELD,
-        target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;"))
+    @Inject(
+        at = @At(
+            value = "FIELD",
+            opcode = PUTFIELD,
+            target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;"
+        ),
+        method = "setScreen"
+    )
     private void setScreen(Screen newScreen, CallbackInfo ci) {
         AutoReconnect.getInstance().onScreenChanged(currentScreen, newScreen);
     }

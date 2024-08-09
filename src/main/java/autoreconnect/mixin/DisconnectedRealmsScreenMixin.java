@@ -3,6 +3,7 @@ package autoreconnect.mixin;
 import autoreconnect.DisconnectedScreenUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.realms.gui.screen.DisconnectedRealmsScreen;
+import net.minecraft.client.realms.gui.screen.RealmsScreen;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(DisconnectedRealmsScreen.class)
-public class DisconnectedRealmsScreenMixin extends Screen {
+public class DisconnectedRealmsScreenMixin extends RealmsScreen {
     @Unique
     @Mutable
     private @Final DisconnectedScreenUtil autoreconnect$util;
@@ -27,7 +28,7 @@ public class DisconnectedRealmsScreenMixin extends Screen {
         autoreconnect$util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
     }
 
-    @Inject(method = "init", at = @At("TAIL"))
+    @Inject(at = @At("TAIL"), method = "init")
     private void init(CallbackInfo ci) {
         autoreconnect$util.init();
     }
