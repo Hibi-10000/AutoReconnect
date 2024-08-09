@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 
 import java.util.NoSuchElementException;
@@ -13,19 +12,21 @@ import java.util.function.Consumer;
 
 public class DisconnectedScreenUtil {
     private final Screen screen;
-    private final Text reason;
     private final Consumer<ButtonWidget> removeConsumer, addDrawableChildConsumer;
     private final IntTernaryPredicate keyPressedPredicate;
+    private boolean transferring = false;
+
+    public void setTransferring(boolean transferring) {
+        this.transferring = transferring;
+    }
 
     public DisconnectedScreenUtil(
         Screen screen,
-        Text reason,
         Consumer<ButtonWidget> removeConsumer,
         Consumer<ButtonWidget> addDrawableChildConsumer,
         IntTernaryPredicate keyPressedPredicate
     ) {
         this.screen = screen;
-        this.reason = reason;
         this.removeConsumer = removeConsumer;
         this.addDrawableChildConsumer = addDrawableChildConsumer;
         this.keyPressedPredicate = keyPressedPredicate;
@@ -39,13 +40,7 @@ public class DisconnectedScreenUtil {
             () -> new NoSuchElementException("Couldn't find the back button on the disconnect screen")
         );
 
-        if (reason.getContent() instanceof TranslatableTextContent translatable
-            && translatable.getKey().equals("disconnect.transfer")
-        ) {
-            shouldAutoReconnect = false;
-        } else {
-            shouldAutoReconnect = AutoReconnect.getConfig().hasAttempts();
-        }
+        shouldAutoReconnect = !transferring && AutoReconnect.getConfig().hasAttempts();
 
         reconnectButton = ButtonWidget.builder(
             Text.translatable("text.autoreconnect.disconnect.reconnect"),
@@ -131,5 +126,9 @@ public class DisconnectedScreenUtil {
     @FunctionalInterface
     public interface IntTernaryPredicate {
         boolean test(int left, int center, int right);
+    }
+
+    public interface DisconnectedScreenTransferring {
+        void autoreconnect$setTransferring(boolean transferring);
     }
 }

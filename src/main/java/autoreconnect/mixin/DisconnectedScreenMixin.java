@@ -2,6 +2,7 @@ package autoreconnect.mixin;
 
 import autoreconnect.AutoReconnect;
 import autoreconnect.DisconnectedScreenUtil;
+import autoreconnect.DisconnectedScreenUtil.DisconnectedScreenTransferring;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -14,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(DisconnectedScreen.class)
-public class DisconnectedScreenMixin extends Screen {
+public class DisconnectedScreenMixin extends Screen implements DisconnectedScreenTransferring {
     @Shadow
     @Mutable
     private @Final Screen parent;
@@ -28,11 +29,17 @@ public class DisconnectedScreenMixin extends Screen {
 
     @Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;)V")
     private void constructor(Screen parent, Text title, Text reason, Text buttonLabel, CallbackInfo ci) {
-        util = new DisconnectedScreenUtil(this, reason, this::remove, this::addDrawableChild, super::keyPressed);
+        util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // make back button redirect to SelectWorldScreen instead of MultiPlayerScreen (https://bugs.mojang.com/browse/MC-45602)
             this.parent = new SelectWorldScreen(new TitleScreen());
         }
+    }
+
+    @Unique
+    @Override
+    public void autoreconnect$setTransferring(boolean transferring) {
+        util.setTransferring(transferring);
     }
 
     @Inject(at = @At("TAIL"), method = "init")
