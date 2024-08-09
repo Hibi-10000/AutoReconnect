@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class DisconnectedRealmsScreenMixin extends Screen {
     @Unique
     @Mutable
-    private @Final DisconnectedScreenUtil util;
+    private @Final DisconnectedScreenUtil autoreconnect$util;
 
     protected DisconnectedRealmsScreenMixin(Text title) {
         super(title);
@@ -24,16 +24,16 @@ public class DisconnectedRealmsScreenMixin extends Screen {
 
     @Inject(at = @At("TAIL"), method = "<init>")
     private void constructor(Screen parent, Text title, Text reason, CallbackInfo ci) {
-        util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
+        autoreconnect$util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
     }
 
     @Inject(method = "init", at = @At("TAIL"))
     private void init(CallbackInfo ci) {
-        util.init();
+        autoreconnect$util.init();
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return util.keyPressed(keyCode, scanCode, modifiers);
+        return autoreconnect$util.keyPressed(keyCode, scanCode, modifiers);
     }
 }

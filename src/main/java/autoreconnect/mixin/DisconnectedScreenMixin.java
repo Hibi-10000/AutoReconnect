@@ -21,7 +21,7 @@ public class DisconnectedScreenMixin extends Screen implements DisconnectedScree
     private @Final Screen parent;
     @Unique
     @Mutable
-    private @Final DisconnectedScreenUtil util;
+    private @Final DisconnectedScreenUtil autoreconnect$util;
 
     protected DisconnectedScreenMixin(Text title) {
         super(title);
@@ -29,7 +29,7 @@ public class DisconnectedScreenMixin extends Screen implements DisconnectedScree
 
     @Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;)V")
     private void constructor(Screen parent, Text title, Text reason, Text buttonLabel, CallbackInfo ci) {
-        util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
+        autoreconnect$util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // make back button redirect to SelectWorldScreen instead of MultiPlayerScreen (https://bugs.mojang.com/browse/MC-45602)
             this.parent = new SelectWorldScreen(new TitleScreen());
@@ -39,12 +39,12 @@ public class DisconnectedScreenMixin extends Screen implements DisconnectedScree
     @Unique
     @Override
     public void autoreconnect$setTransferring(boolean transferring) {
-        util.setTransferring(transferring);
+        autoreconnect$util.setTransferring(transferring);
     }
 
     @Inject(at = @At("TAIL"), method = "init")
     private void init(CallbackInfo ci) {
-        util.init();
+        autoreconnect$util.init();
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // change back button text to "Back" instead of "Back to World List" bcs of bug fix above
             AutoReconnect.findBackButton(this).ifPresent(
@@ -55,7 +55,7 @@ public class DisconnectedScreenMixin extends Screen implements DisconnectedScree
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return util.keyPressed(keyCode, scanCode, modifiers);
+        return autoreconnect$util.keyPressed(keyCode, scanCode, modifiers);
     }
 
     // make this screen closable by pressing escape
