@@ -19,7 +19,7 @@ public class ClientCommonNetworkHandlerMixin {
     @Redirect(at = @At(value = "NEW", target = "net/minecraft/client/gui/screen/DisconnectedScreen"), method = "createDisconnectedScreen")
     private DisconnectedScreen createDisconnectedScreen(Screen parent, Text title, DisconnectionInfo info) {
         DisconnectedScreen screen = new DisconnectedScreen(parent, title, info);
-        ((DisconnectedScreenTransferring) screen).autoreconnect$setTransferring(transferring);
+        ((DisconnectedScreenTransferring) screen).autoreconnect$setTransferring(this.transferring);
         return screen;
     }
 }

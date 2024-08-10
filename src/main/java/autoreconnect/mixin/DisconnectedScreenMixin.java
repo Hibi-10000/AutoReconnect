@@ -28,9 +28,12 @@ public class DisconnectedScreenMixin extends Screen implements DisconnectedScree
         super(title);
     }
 
-    @Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/network/DisconnectionInfo;Lnet/minecraft/text/Text;)V")
+    @Inject(
+        at = @At("TAIL"),
+        method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/network/DisconnectionInfo;Lnet/minecraft/text/Text;)V"
+    )
     private void constructor(Screen parent, Text title, DisconnectionInfo info, Text buttonLabel, CallbackInfo ci) {
-        autoreconnect$util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
+        autoreconnect$util = new DisconnectedScreenUtil(this, super::remove, super::addDrawableChild, super::keyPressed);
         if (AutoReconnect.getInstance().isPlayingSingleplayer()) {
             // make back button redirect to SelectWorldScreen instead of MultiPlayerScreen (https://bugs.mojang.com/browse/MC-45602)
             this.parent = new SelectWorldScreen(new TitleScreen());
@@ -69,6 +72,6 @@ public class DisconnectedScreenMixin extends Screen implements DisconnectedScree
     @Override
     public void close() {
         assert this.client != null;
-        this.client.setScreen(parent);
+        this.client.setScreen(this.parent);
     }
 }

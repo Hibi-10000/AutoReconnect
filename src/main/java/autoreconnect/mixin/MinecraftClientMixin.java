@@ -34,6 +34,6 @@ public class MinecraftClientMixin {
         method = "setScreen"
     )
     private void setScreen(Screen newScreen, CallbackInfo ci) {
-        AutoReconnect.getInstance().onScreenChanged(currentScreen, newScreen);
+        AutoReconnect.getInstance().onScreenChanged(this.currentScreen, newScreen);
     }
 }

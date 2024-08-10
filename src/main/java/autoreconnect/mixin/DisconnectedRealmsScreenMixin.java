@@ -25,7 +25,7 @@ public class DisconnectedRealmsScreenMixin extends RealmsScreen {
 
     @Inject(at = @At("TAIL"), method = "<init>")
     private void constructor(Screen parent, Text title, Text reason, CallbackInfo ci) {
-        autoreconnect$util = new DisconnectedScreenUtil(this, this::remove, this::addDrawableChild, super::keyPressed);
+        autoreconnect$util = new DisconnectedScreenUtil(this, super::remove, super::addDrawableChild, super::keyPressed);
     }
 
     @Inject(at = @At("TAIL"), method = "init")

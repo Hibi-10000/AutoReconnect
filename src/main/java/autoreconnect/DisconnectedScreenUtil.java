@@ -3,6 +3,7 @@ package autoreconnect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -12,7 +13,8 @@ import java.util.function.Consumer;
 
 public class DisconnectedScreenUtil {
     private final Screen screen;
-    private final Consumer<ButtonWidget> removeConsumer, addDrawableChildConsumer;
+    private final Consumer<ClickableWidget> removeConsumer;
+    private final Consumer<ClickableWidget> addDrawableChildConsumer;
     private final IntTernaryPredicate keyPressedPredicate;
     private boolean transferring = false;
 
@@ -22,8 +24,8 @@ public class DisconnectedScreenUtil {
 
     public DisconnectedScreenUtil(
         Screen screen,
-        Consumer<ButtonWidget> removeConsumer,
-        Consumer<ButtonWidget> addDrawableChildConsumer,
+        Consumer<ClickableWidget> removeConsumer,
+        Consumer<ClickableWidget> addDrawableChildConsumer,
         IntTernaryPredicate keyPressedPredicate
     ) {
         this.screen = screen;
@@ -32,7 +34,9 @@ public class DisconnectedScreenUtil {
         this.keyPressedPredicate = keyPressedPredicate;
     }
 
-    private ButtonWidget reconnectButton, cancelButton, backButton;
+    private ButtonWidget reconnectButton;
+    private ButtonWidget cancelButton;
+    private ButtonWidget backButton;
     private boolean shouldAutoReconnect;
 
     public void init() {
