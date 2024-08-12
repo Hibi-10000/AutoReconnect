@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -46,6 +47,8 @@ public class DisconnectedScreenUtil {
 
         shouldAutoReconnect = !transferring && AutoReconnect.getConfig().hasAttempts();
 
+        DirectionalLayoutWidget reconnectWidget = DirectionalLayoutWidget.horizontal().spacing(4);
+
         reconnectButton = ButtonWidget.builder(
             Text.translatable("text.autoreconnect.disconnect.reconnect"),
             btn -> AutoReconnect.schedule(
@@ -53,11 +56,12 @@ public class DisconnectedScreenUtil {
                 100,
                 TimeUnit.MILLISECONDS
             )
-        ).dimensions(0, 0, 0, 20).build();
+        ).size(0, 20).build();
+
+        reconnectWidget.add(reconnectButton);
 
         // put reconnect (and cancel button) where back button is and push that down
-        reconnectButton.setX(backButton.getX());
-        reconnectButton.setY(backButton.getY());
+        reconnectWidget.setPosition(backButton.getX(), backButton.getY());
         if (shouldAutoReconnect) {
             reconnectButton.setWidth(backButton.getWidth() - backButton.getHeight() - 4);
 
@@ -66,18 +70,17 @@ public class DisconnectedScreenUtil {
                     s -> s.withColor(Formatting.RED)
                 ),
                 btn -> cancelCountdown()
-            ).dimensions(
-                backButton.getX() + backButton.getWidth() - backButton.getHeight(),
-                backButton.getY(),
+            ).size(
                 backButton.getHeight(),
                 backButton.getHeight()
             ).build();
 
-            addDrawableChildConsumer.accept(cancelButton);
+            reconnectWidget.add(cancelButton);
         } else {
             reconnectButton.setWidth(backButton.getWidth());
         }
-        addDrawableChildConsumer.accept(reconnectButton);
+        reconnectWidget.refreshPositions();
+        reconnectWidget.forEachChild(addDrawableChildConsumer);
         backButton.setY(backButton.getY() + backButton.getHeight() + 4);
 
         if (shouldAutoReconnect) {
