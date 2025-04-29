@@ -1,16 +1,16 @@
 package autoreconnect.reconnect;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.network.ServerAddress;
-import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 public class MultiplayerReconnectStrategy extends ReconnectStrategy {
-    private final ServerInfo serverInfo;
+    private final ServerData serverInfo;
 
-    public MultiplayerReconnectStrategy(ServerInfo serverInfo) {
+    public MultiplayerReconnectStrategy(ServerData serverInfo) {
         this.serverInfo = serverInfo;
     }
 
@@ -20,14 +20,14 @@ public class MultiplayerReconnectStrategy extends ReconnectStrategy {
     }
 
     /**
-     * @see net.minecraft.client.QuickPlay#startMultiplayer(MinecraftClient, String)
+     * @see net.minecraft.client.quickplay.QuickPlay#joinMultiplayerWorld(Minecraft, String)
      */
     @Override
     public void reconnect() {
-        ConnectScreen.connect(
-            new MultiplayerScreen(new TitleScreen()),
-            MinecraftClient.getInstance(),
-            ServerAddress.parse(serverInfo.address),
+        ConnectScreen.startConnecting(
+            new JoinMultiplayerScreen(new TitleScreen()),
+            Minecraft.getInstance(),
+            ServerAddress.parseString(serverInfo.ip),
             serverInfo,
             false,
             null

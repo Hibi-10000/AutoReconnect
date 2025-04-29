@@ -1,25 +1,25 @@
 package autoreconnect.mixin;
 
 import autoreconnect.DisconnectedScreenUtil.DisconnectedScreenTransferring;
-import net.minecraft.client.gui.screen.DisconnectedScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.ClientCommonNetworkHandler;
-import net.minecraft.network.DisconnectionInfo;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.DisconnectedScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
+import net.minecraft.network.DisconnectionDetails;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(ClientCommonNetworkHandler.class)
+@Mixin(ClientCommonPacketListenerImpl.class)
 public class ClientCommonNetworkHandlerMixin {
     @Shadow
-    protected boolean transferring;
+    protected boolean isTransferring;
 
-    @Redirect(at = @At(value = "NEW", target = "net/minecraft/client/gui/screen/DisconnectedScreen"), method = "createDisconnectedScreen")
-    private DisconnectedScreen createDisconnectedScreen(Screen parent, Text title, DisconnectionInfo info) {
+    @Redirect(at = @At(value = "NEW", target = "net/minecraft/client/gui/screens/DisconnectedScreen"), method = "createDisconnectScreen")
+    private DisconnectedScreen createDisconnectScreen(Screen parent, Component title, DisconnectionDetails info) {
         DisconnectedScreen screen = new DisconnectedScreen(parent, title, info);
-        ((DisconnectedScreenTransferring) screen).autoreconnect$setTransferring(this.transferring);
+        ((DisconnectedScreenTransferring) screen).autoreconnect$setTransferring(this.isTransferring);
         return screen;
     }
 }

@@ -1,21 +1,21 @@
 package autoreconnect;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
 public class DisconnectedScreenUtil {
     private final Screen screen;
-    private final Consumer<ClickableWidget> removeConsumer;
-    private final Consumer<ClickableWidget> addDrawableChildConsumer;
+    private final Consumer<AbstractWidget> removeConsumer;
+    private final Consumer<AbstractWidget> addDrawableChildConsumer;
     private final IntTernaryPredicate keyPressedPredicate;
     private boolean transferring = false;
 
@@ -25,8 +25,8 @@ public class DisconnectedScreenUtil {
 
     public DisconnectedScreenUtil(
         Screen screen,
-        Consumer<ClickableWidget> removeConsumer,
-        Consumer<ClickableWidget> addDrawableChildConsumer,
+        Consumer<AbstractWidget> removeConsumer,
+        Consumer<AbstractWidget> addDrawableChildConsumer,
         IntTernaryPredicate keyPressedPredicate
     ) {
         this.screen = screen;
@@ -35,39 +35,39 @@ public class DisconnectedScreenUtil {
         this.keyPressedPredicate = keyPressedPredicate;
     }
 
-    private ButtonWidget reconnectButton;
-    private ButtonWidget cancelButton;
-    private ButtonWidget backButton;
+    private Button reconnectButton;
+    private Button cancelButton;
+    private Button backButton;
     private boolean shouldAutoReconnect;
 
     public void init() {
-        backButton = AutoReconnect.findBackButton(screen).orElseThrow(
+        backButton = autoreconnect.AutoReconnect.findBackButton(screen).orElseThrow(
             () -> new NoSuchElementException("Couldn't find the back button on the disconnect screen")
         );
 
-        shouldAutoReconnect = !transferring && AutoReconnect.getConfig().hasAttempts();
+        shouldAutoReconnect = !transferring && autoreconnect.AutoReconnect.getConfig().hasAttempts();
 
-        DirectionalLayoutWidget reconnectWidget = DirectionalLayoutWidget.horizontal().spacing(4);
+        LinearLayout reconnectWidget = LinearLayout.horizontal().spacing(4);
 
-        reconnectButton = ButtonWidget.builder(
-            Text.translatable("text.autoreconnect.disconnect.reconnect"),
-            btn -> AutoReconnect.schedule(
-                () -> MinecraftClient.getInstance().execute(this::manualReconnect),
+        reconnectButton = Button.builder(
+            Component.translatable("text.autoreconnect.disconnect.reconnect"),
+            btn -> autoreconnect.AutoReconnect.schedule(
+                () -> Minecraft.getInstance().execute(this::manualReconnect),
                 100,
                 TimeUnit.MILLISECONDS
             )
         ).size(0, 20).build();
 
-        reconnectWidget.add(reconnectButton);
+        reconnectWidget.addChild(reconnectButton);
 
         // put reconnect (and cancel button) where back button is and push that down
         reconnectWidget.setPosition(backButton.getX(), backButton.getY());
         if (shouldAutoReconnect) {
             reconnectButton.setWidth(backButton.getWidth() - backButton.getHeight() - 4);
 
-            cancelButton = ButtonWidget.builder(
-                Text.literal("✕").styled(
-                    s -> s.withColor(Formatting.RED)
+            cancelButton = Button.builder(
+                Component.literal("✕").withStyle(
+                    s -> s.withColor(ChatFormatting.RED)
                 ),
                 btn -> cancelCountdown()
             ).size(
@@ -75,22 +75,22 @@ public class DisconnectedScreenUtil {
                 backButton.getHeight()
             ).build();
 
-            reconnectWidget.add(cancelButton);
+            reconnectWidget.addChild(cancelButton);
         } else {
             reconnectButton.setWidth(backButton.getWidth());
         }
-        reconnectWidget.refreshPositions();
-        reconnectWidget.forEachChild(addDrawableChildConsumer);
+        reconnectWidget.arrangeElements();
+        reconnectWidget.visitWidgets(addDrawableChildConsumer);
         backButton.setY(backButton.getY() + backButton.getHeight() + 4);
 
         if (shouldAutoReconnect) {
-            AutoReconnect.getInstance().startCountdown(this::countdownCallback);
+            autoreconnect.AutoReconnect.getInstance().startCountdown(this::countdownCallback);
         }
     }
 
     private void manualReconnect() {
-        AutoReconnect.getInstance().cancelAutoReconnect();
-        AutoReconnect.getInstance().reconnect();
+        autoreconnect.AutoReconnect.getInstance().cancelAutoReconnect();
+        autoreconnect.AutoReconnect.getInstance().reconnect();
     }
 
     private void cancelCountdown() {
@@ -98,7 +98,7 @@ public class DisconnectedScreenUtil {
         shouldAutoReconnect = false;
         removeConsumer.accept(cancelButton);
         reconnectButton.active = true; // in case it was deactivated after running out of attempts
-        reconnectButton.setMessage(Text.translatable("text.autoreconnect.disconnect.reconnect"));
+        reconnectButton.setMessage(Component.translatable("text.autoreconnect.disconnect.reconnect"));
         reconnectButton.setWidth(backButton.getWidth()); // reset to full width
     }
 
@@ -106,15 +106,15 @@ public class DisconnectedScreenUtil {
         if (seconds < 0) {
             // indicates that we're out of attempts
             reconnectButton.setMessage(
-                Text.translatable("text.autoreconnect.disconnect.reconnect_failed").styled(
-                    s -> s.withColor(Formatting.RED)
+                Component.translatable("text.autoreconnect.disconnect.reconnect_failed").withStyle(
+                    s -> s.withColor(ChatFormatting.RED)
                 )
             );
             reconnectButton.active = false;
         } else {
             reconnectButton.setMessage(
-                Text.translatable("text.autoreconnect.disconnect.reconnect_in", seconds).styled(
-                    s -> s.withColor(Formatting.GREEN)
+                Component.translatable("text.autoreconnect.disconnect.reconnect_in", seconds).withStyle(
+                    s -> s.withColor(ChatFormatting.GREEN)
                 )
             );
         }

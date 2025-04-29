@@ -1,10 +1,10 @@
 package autoreconnect.mixin;
 
 import autoreconnect.DisconnectedScreenUtil;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.realms.gui.screen.DisconnectedRealmsScreen;
-import net.minecraft.client.realms.gui.screen.RealmsScreen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.realms.DisconnectedRealmsScreen;
+import net.minecraft.realms.RealmsScreen;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -19,13 +19,13 @@ public class DisconnectedRealmsScreenMixin extends RealmsScreen {
     @Mutable
     private @Final DisconnectedScreenUtil autoreconnect$util;
 
-    protected DisconnectedRealmsScreenMixin(Text title) {
+    protected DisconnectedRealmsScreenMixin(Component title) {
         super(title);
     }
 
     @Inject(at = @At("TAIL"), method = "<init>")
-    private void constructor(Screen parent, Text title, Text reason, CallbackInfo ci) {
-        autoreconnect$util = new DisconnectedScreenUtil(this, super::remove, super::addDrawableChild, super::keyPressed);
+    private void constructor(Screen parent, Component title, Component reason, CallbackInfo ci) {
+        autoreconnect$util = new DisconnectedScreenUtil(this, super::removeWidget, super::addRenderableWidget, super::keyPressed);
     }
 
     @Inject(at = @At("TAIL"), method = "init")
